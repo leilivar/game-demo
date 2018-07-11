@@ -1,13 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+/*
 using UnityEngine.UI;
 
+
 public class DebugScript : MonoBehaviour {
-    public Slider slider;
-    public Text sliderText;
-    public Text input;
-    public Text errorText;
+    public UnityEngine.UI.Slider slider;
+    public UnityEngine.UI.Text sliderText;
+    public UnityEngine.UI.Text input;
+    public UnityEngine.UI.Text errorText;
     private AudioSource audio;
 	// Use this for initialization
 	void Start () {
@@ -48,3 +50,4 @@ public class DebugScript : MonoBehaviour {
         audio.Play();
     }
 }
+*/

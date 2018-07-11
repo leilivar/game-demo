@@ -1,7 +1,8 @@
-﻿<Properties StartupConfiguration="{F5CCFB44-CF58-EC6F-B67D-82D62F040ED5}|">
+﻿<Properties StartupConfiguration="{E5923EEC-5541-B61C-7FFF-CD1872624F73}|">
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="Unity.Editor" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scenes/DebugScript.cs">
     <Files>
-      <File FileName="Assets/Scenes/DebugScript.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scenes/DebugScript.cs" Line="4" Column="3" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
