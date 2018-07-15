@@ -3,27 +3,33 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class MusicManager : Singleton<MusicManager> {
-    public float timeError = 0.1f;
+    public float timeError = 0.15f;
 
     private SongInfo songInfo;
     private float startTime = 0;
     private BeatInfo lastHitBeat;//最后一次正确击打到的节拍
     private BeatInfo lastPerformedBeat;
     private int nextBeatIndex = 0;
+    private AudioSource audio;
+
+    List<BeatInfo> performed = new List<BeatInfo>();
 
     private bool isPlaying = false;
     // Use this for initialization
     void Start()
     {
-        
+        audio = GetComponent<AudioSource>();
+        //DontDestroyOnLoad(gameObject);
     }
 	
 	// Update is called once per frame
 	void Update () {
         if (!isPlaying)
             return;
-        BeatInfo next = songInfo.GetBeatInfo(nextBeatIndex);
+
         float currentTime = GetSongPlayedTime();
+        /*
+        BeatInfo next = songInfo.GetBeatInfo(nextBeatIndex);
         if (next != null)
         {
             float nextBeatTime = songInfo.GetBeatInfoTime(next);
@@ -41,50 +47,104 @@ public class MusicManager : Singleton<MusicManager> {
                 }
             }
         }
+        */
 
         //应该分成两个队列，一个输入队列，一个行为队，以下处理输入队列
+
         BeatInfo nearest = songInfo.GetNeareatInputBeat(GetSongPlayedTime());
+        /*
+        if (nearest == lastHitBeat)
+            return;
         float nearestTime = songInfo.GetBeatInfoTime(nearest);
-        if(IsPlayerPressedButton()){
-            if(nearest == lastHitBeat){
-                //已经处理过这拍了，错误的输入
-            }else{
-                float error = currentTime - nearestTime;
-                if(Mathf.Abs(error)<=timeError){
-                    //正确的输入
-                    lastHitBeat = nearest;
-                    foreach(string action in nearest.actions){
-                        EventManager.Instance.OnEventTrigger(action, null, null);
+        //MergeParameter mp = new MergeParameter { nearestBeatPosition = nearestTime };
+
+        if (InputManager.HasUserInput(null))
+        {
+            if (InputManager.IsPlayerInputCorrect(null))
+            {
+                if (nearest == lastHitBeat)
+                {
+                    //已经处理过这拍了，错误的输入
+                }
+                else
+                {
+                    float error = currentTime - nearestTime;
+                    if (Mathf.Abs(error) <= timeError)
+                    {
+                        //正确的输入
+                        Debug.Log("right on");
+                        performed.Add(nearest);
+                        //mp.catType = nearest.inputs;
+                        EventManager.Instance.OnEventTrigger("InputGood", gameObject, null);
+                        lastHitBeat = nearest;
+                        foreach (string action in nearest.actions)
+                        {
+                            EventManager.Instance.OnEventTrigger(action, null, null);
+                        }
                     }
-                }else{
-                    //错误的输入
+                    else
+                    {
+                        //错误的输入
+                    }
                 }
             }
-        }else{
-            if(currentTime+timeError>nearestTime){
-                //玩家错过了输入时机
-
+            else{
+                //错误的输入，暂时不考虑惩罚
             }
         }
+        else{
+            
+        }
+        */
+
+
+        BeatInfo latestBeat = songInfo.GetBeatInfo(nextBeatIndex);
+        if(latestBeat == null){
+            isPlaying = false;
+            EventManager.Instance.OnEventTrigger("SongOver", gameObject, null);
+            return;
+        }
+        if(performed.Contains(latestBeat)){
+            nextBeatIndex++;
+            return;
+        }
+        float latestTime = songInfo.GetBeatInfoTime(latestBeat);
+        if (currentTime - timeError > latestTime)
+        {
+            //玩家错过了输入时机
+            Debug.Log("miss");
+            performed.Add(latestBeat);
+            EventManager.Instance.OnEventTrigger("InputMiss", gameObject, null);
+            lastHitBeat = nearest;
+        }
+
         
 	}
 
     public void StartSong(SongInfo song){
         if (song.IsBeatInfosEmpty())
             return;
+        if(audio==null){
+            audio = GetComponent<AudioSource>();
+        }
+        performed.Clear();
         isPlaying = true;
+        audio.time = 0;
+        audio.Play();
         songInfo = song;
         startTime = Time.time;
         nextBeatIndex = 0;
         lastHitBeat = null;
+        NoteManager.Instance.StartSong(song);
     }
 
     public void StopSong(){
-        isPlaying = false;
+        //isPlaying = false;
     }
 
     public float GetSongPlayedTime(){
-        return Time.time - startTime;
+        //return Time.time - startTime;
+        return audio.time;
     }
 
     private bool IsPlayerPressedButton(){

@@ -1,17 +1,63 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class SongInfo {
+    public static readonly string FILE_DIC = Application.dataPath + "/SongInfos/";
     private float offset = 0;
     public float oneBeatTime { get;private set; }
-    List<BeatInfo> beatInfos = new List<BeatInfo>();
+    public List<BeatInfo> beatInfos = new List<BeatInfo>();
 
-    public static SongInfo Load(string songinfo){
+    public static SongInfo Load(string fileName){
         SongInfo newSong = new SongInfo();
-        newSong.offset = 0;
-        newSong.oneBeatTime = 1f;
+        string filePath = FILE_DIC + fileName;
+        using (StreamReader reader = new StreamReader(filePath)){
+            string line = reader.ReadLine();
+            newSong.SetCommonInfo(line);
+
+            line = reader.ReadLine();
+            while (!string.IsNullOrEmpty(line)){
+                newSong.AddBeatInfo(line);
+                line = reader.ReadLine();
+            }
+        }
         return newSong;
+    }
+
+    public static SongInfo LoadFromString(string info){
+        SongInfo newSong = new SongInfo();
+        string[] line = info.Split('\n');
+        if (line.Length <= 0)
+            return newSong;
+        newSong.SetCommonInfo(line[0]);
+        for (int i = 1; i < line.Length;i++){
+            newSong.AddBeatInfo(line[i]);
+        }
+
+        return newSong;
+    }
+
+    private void SetCommonInfo(string firstLine){
+        string[] info = firstLine.Split(',');
+        offset = float.Parse(info[0]);
+        float speed = float.Parse(info[1]);
+        oneBeatTime = 60f / speed;
+    }
+
+    private void AddBeatInfo(string line){
+        string[] info = line.Split(';');
+        float beatPosition = float.Parse(info[0]);
+        BeatInfo beatInfo = new BeatInfo();
+        beatInfo.beatPosition = beatPosition;
+        /*
+        for (int i = 1; i < info.Length;i++){
+            string[] one = info[i].Split(',');
+            beatInfo.inputs.Add(one[0]);
+            beatInfo.lines.Add(one[1]);
+        }
+        */
+        beatInfos.Add(beatInfo);
     }
 
     public bool IsBeatInfosEmpty(){
@@ -59,13 +105,13 @@ public class SongInfo {
             return null;
         return beatInfos[index];
     }
+
     /// <summary>
     /// 得到此节拍在音乐中的时间
     /// </summary>
     /// <returns>The beat info time.</returns>
     /// <param name="info">Info.</param>
     public float GetBeatInfoTime(BeatInfo info){
-        
         return info.beatPosition * oneBeatTime + offset;
     }
 
@@ -93,6 +139,6 @@ public class SongInfo {
 public class BeatInfo{
     public float beatLength = 1;
     public float beatPosition;//在整个音乐里是第几拍
-    public bool isPlayerActionBeat = false;
+    public string actionType = string.Empty;
     public List<string> actions = new List<string>();
 }

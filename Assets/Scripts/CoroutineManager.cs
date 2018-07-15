@@ -5,8 +5,8 @@ using System;
 
 public class CoroutineManager : Singleton <CoroutineManager> {
 	
-	public void DelayedAction(float time, Action action){
-		StartCoroutine (_DelayedAction (time, action));
+    public Coroutine Delay(float time, Action action){
+		return StartCoroutine (_DelayedAction (time, action));
 	}
 
 	private IEnumerator _DelayedAction(float time, Action action){
@@ -14,14 +14,16 @@ public class CoroutineManager : Singleton <CoroutineManager> {
 		action ();
 	}
 
-	public void LoopAction (Func<bool> condition, Action action){
-		StartCoroutine (_LoopAction (condition, action));
+    public Coroutine Loop (Func<bool> condition, Action action,Action endAction){
+        return StartCoroutine(_LoopAction(condition, action, endAction));
 	}
 
-	private IEnumerator _LoopAction (Func<bool> condition, Action action){
+    private IEnumerator _LoopAction (Func<bool> condition, Action action,Action endAction){
 		while (condition()) {
 			action ();
 			yield return new WaitForEndOfFrame ();
 		}
+        if (endAction != null)
+            endAction();
 	}
 }
