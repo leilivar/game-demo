@@ -10,6 +10,7 @@ public class MusicManager : Singleton<MusicManager> {
     private BeatInfo lastHitBeat;//最后一次正确击打到的节拍
     private BeatInfo lastPerformedBeat;
     private int nextBeatIndex = 0;
+    private int onBeatIndex = 1;
     private AudioSource audio;
 
     List<BeatInfo> performed = new List<BeatInfo>();
@@ -28,8 +29,27 @@ public class MusicManager : Singleton<MusicManager> {
             return;
 
         float currentTime = GetSongPlayedTime();
-        /*
+        int currentBeat = songInfo.GetBeatIndex(currentTime);
+        if(currentBeat>=onBeatIndex){
+            onBeatIndex++;
+            EventManager.Instance.OnEventTrigger("OnBeat", gameObject, null);
+        }
+
+
         BeatInfo next = songInfo.GetBeatInfo(nextBeatIndex);
+
+        if (next == null)
+        {
+            //isPlaying = false;
+            //EventManager.Instance.OnEventTrigger("SongOver", gameObject, null);
+            return;
+        }
+        if (performed.Contains(next))
+        {
+            nextBeatIndex++;
+            return;
+        }
+
         if (next != null)
         {
             float nextBeatTime = songInfo.GetBeatInfoTime(next);
@@ -38,6 +58,7 @@ public class MusicManager : Singleton<MusicManager> {
                 if (currentTime > nextBeatTime)
                 {
                     //刚刚超过下一拍，执行这个拍子的行为
+
                     foreach (string anction in next.actions)
                     {
                         EventManager.Instance.OnEventTrigger(anction, null, null);
@@ -47,11 +68,11 @@ public class MusicManager : Singleton<MusicManager> {
                 }
             }
         }
-        */
+
 
         //应该分成两个队列，一个输入队列，一个行为队，以下处理输入队列
 
-        BeatInfo nearest = songInfo.GetNeareatInputBeat(GetSongPlayedTime());
+        //BeatInfo nearest = songInfo.GetNeareatInputBeat(GetSongPlayedTime());
         /*
         if (nearest == lastHitBeat)
             return;
@@ -97,7 +118,7 @@ public class MusicManager : Singleton<MusicManager> {
         }
         */
 
-
+        /*
         BeatInfo latestBeat = songInfo.GetBeatInfo(nextBeatIndex);
         if(latestBeat == null){
             isPlaying = false;
@@ -117,7 +138,7 @@ public class MusicManager : Singleton<MusicManager> {
             EventManager.Instance.OnEventTrigger("InputMiss", gameObject, null);
             lastHitBeat = nearest;
         }
-
+        */
         
 	}
 

@@ -38,6 +38,10 @@ public class SongInfo {
         return newSong;
     }
 
+    public int GetBeatIndex(float time){
+        return (int)((time - offset) / oneBeatTime);
+    }
+
     private void SetCommonInfo(string firstLine){
         string[] info = firstLine.Split(',');
         offset = float.Parse(info[0]);

@@ -47,6 +47,7 @@ public class NoteManager : Singleton<NoteManager> {
 
     public Note CreateNote(string type){
         Note n = Instantiate(note.gameObject).GetComponent<Note>();
+        EventManager.Instance.OnEventTrigger("OnWomanAction", null, null);
         n.line = line;
         return n;
     }

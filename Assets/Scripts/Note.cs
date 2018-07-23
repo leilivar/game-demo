@@ -21,6 +21,11 @@ public class Note : MonoBehaviour
 	// Update is called once per frame
 	void Update () {
         Timer = MusicManager.Instance.GetSongPlayedTime() - StartTime;
+        if (StartTime + Timer - MusicManager.Instance.timeError > ActionTime)
+        {
+            EventManager.Instance.OnEventTrigger("InputFail", gameObject, null);
+            Remove();
+        }
 	}
 
     public void SetBeatInfo(BeatInfo beatInfo,float actionTime){
@@ -49,6 +54,12 @@ public class Note : MonoBehaviour
 
     public void OnPlayerInput(){
         Remove();
-        EventManager.Instance.OnEventTrigger("OnNotePerformed", gameObject, beat);
+        float timeError = MusicManager.Instance.GetSongPlayedTime() - ActionTime;
+        if(Mathf.Abs(timeError)<MusicManager.Instance.timeError){
+            EventManager.Instance.OnEventTrigger("InputGood", null, null);
+        }else{
+            EventManager.Instance.OnEventTrigger("InputFail", null, null);
+        }
+        //EventManager.Instance.OnEventTrigger("OnNotePerformed", gameObject, beat);
     }
 }
